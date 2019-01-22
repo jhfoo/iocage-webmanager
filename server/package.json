@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "restify": "^7.6.0",
+    "restify-router": "^0.5.1",
+    "sqlite3": "^4.0.6"
+  },
+  "devDependencies": {
+    "supervisor": "^0.12.0"
+  }
+}
