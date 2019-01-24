@@ -6,7 +6,7 @@ const restify = require('restify'),
     logger = log4js.getLogger(),
     Config = require('./ConfigReader.js')('../Config.js');
 
-logger.level = 'debug';
+logger.level = Config.log4js.level;
 
 // secondary init
 const server = restify.createServer();
@@ -27,5 +27,5 @@ router.add('/iocage', require('./router-iocage'));
 router.applyRoutes(server);
 
 server.listen(Config.service.port, function () {
-    logger.debug('%s listening at %s', server.name, server.url);
+    logger.info('%s listening at %s', server.name, server.url);
 });
