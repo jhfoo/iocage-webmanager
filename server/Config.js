@@ -2,9 +2,9 @@
 
 module.exports = {
     service: {
-        port: 8002
+        port: 8443
     },
     log4js: {
-        level: 'info'
+        level: 'debug'
     }
 };

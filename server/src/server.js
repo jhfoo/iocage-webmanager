@@ -1,4 +1,5 @@
-const restify = require('restify'),
+const fs = require('fs'),
+    restify = require('restify'),
     corsMiddleware = require('restify-cors-middleware'),
     Router = require('restify-router').Router,
     router = new Router(),
@@ -9,9 +10,16 @@ const restify = require('restify'),
 logger.level = Config.log4js.level;
 
 // secondary init
-const server = restify.createServer();
+// logger.debug(fs.readFileSync('./host.key'))
+const server = restify.createServer({
+    certificate: fs.readFileSync('./dell1850.crt'),
+    key: fs.readFileSync('./dell1850.key'),
+    httpsServerOptions: {
+
+    }
+});
 const cors = corsMiddleware({
-    origins:['*']
+    origins: ['*']
 });
 server.pre(cors.preflight);
 server.use(cors.actual);

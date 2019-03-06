@@ -1,5 +1,6 @@
 const child_process = require('child_process'),
     assert = require('assert'),
+    sprintf = require('sprintf-js').sprintf,
     Router = require('restify-router').Router,
     router = new Router(),
     log4js = require('log4js'),
@@ -78,8 +79,37 @@ router.get('/property/:jailname/:property', (req, res, next) => {
     });
 });
 
+router.post('/property/:jailname/:property', (req, res, next) => {
+    logger.info('POST {iocage}/property');
+    logger.debug('jailname: ' + req.params.jailname)
+    logger.debug('property: ' + req.params.property)
+    logger.debug('property: ' + req.body.value)
+    let cmd = sprintf('sudo iocage set %s="%s" %s', req.params.property, req.body.value, req.params.jailname)
+    logger.debug(cmd)
+    child_process.exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            logger.error(err)
+            res.send({
+                status: 'ERROR',
+                message: err.message
+            });
+            next();
+        } else {
+            logger.debug(stdout);
+            res.send({
+                status: 'OK',
+                message: stdout
+            });
+            next();
+        }
+    });
+    // res.send('OK');
+    // next();
+});
+
 router.get('/start/:jailname', (req, res, next) => {
-    child_process.exec('iocage start ' + req.params.jailname, (err, stdout, stderr) => {
+    logger.info('GET {iocage}/start');
+    child_process.exec('sudo iocage start ' + req.params.jailname, (err, stdout, stderr) => {
         if (err) {
             res.send(err);
             next();
@@ -92,7 +122,8 @@ router.get('/start/:jailname', (req, res, next) => {
 });
 
 router.get('/stop/:jailname', (req, res, next) => {
-    child_process.exec('iocage stop ' + req.params.jailname, (err, stdout, stderr) => {
+    logger.info('GET {iocage}/stop');
+    child_process.exec('sudo iocage stop ' + req.params.jailname, (err, stdout, stderr) => {
         if (err) {
             res.send(err);
             next();
