@@ -1,4 +1,8 @@
 # Logs
+# certs
+*.crt
+*.key
+
 logs
 *.log
 npm-debug.log*

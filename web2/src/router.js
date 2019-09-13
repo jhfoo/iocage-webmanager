@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import Jails from './views/Jails.vue'
-import JailDetail from './views/JailDetail.vue'
 
 Vue.use(Router)
 
@@ -12,17 +10,6 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home
-    },
-    {
-      path: '/jails',
-      name: 'jails',
-      component: Jails
-    },
-    {
-      path: '/jail/:jailname',
-      name: 'jaildetail',
-      component: JailDetail,
-      props: true
     },
     {
       path: '/about',
