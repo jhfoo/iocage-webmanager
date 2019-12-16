@@ -1,15 +1,17 @@
 <template>
   <v-app>
-    <v-app-bar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
+    <v-app-bar dense app color="primary" dark>
+      <div class="d-flex align-center">
+        <v-app-bar-nav-icon></v-app-bar-nav-icon>
+        <v-toolbar-title>IOCage Web Administrator</v-toolbar-title>
+      </div>
+
       <v-spacer></v-spacer>
+
       <v-btn
-        text
         href="https://github.com/vuetifyjs/vuetify/releases/latest"
         target="_blank"
+        text
       >
         <span class="mr-2">Latest Release</span>
         <v-icon>mdi-open-in-new</v-icon>
@@ -26,6 +28,7 @@
 
 export default {
   name: 'App',
+
   data: () => ({
     //
   }),
