@@ -13,39 +13,38 @@
     <v-row>
       <v-col md="7">
         <v-row no-gutters>
-          <v-col md="4">State</v-col>
-          <v-col md="5">{{displayUppercase(properties.state)}}</v-col>
-          <v-col md="3"><a href="#" @click="toggleStart">Toggle</a></v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="4">Allow raw sockets (eg. PING)</v-col>
-          <v-col md="5">{{displayBoolean(properties.allow_raw_sockets)}}</v-col>
-          <v-col md="3">
-            <v-btn @click="toggleProperty('allow_raw_sockets', 'ToggleRawSocket')" :loading="buttons.ToggleRawSocket.isLoading" text>Toggle</v-btn>
+          <v-col md="12">
+            <v-switch v-model="properties.state" @click="toggleStart('ToggleState')" :loading="buttons.ToggleState.isLoading" :label="'State: ' + displayBoolean(properties.state)" dense></v-switch>
           </v-col>
         </v-row>
         <v-row no-gutters>
-          <v-col md="4">Address</v-col>
-          <v-col md="5"><input type="text" :value="properties.ip4_addr"/></v-col>
-          <v-col md="3">Update</v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="4">Is Template</v-col>
-          <v-col md="5">{{displayBoolean(properties.template)}}</v-col>
-          <v-col md="3">
-            <v-btn @click="toggleProperty('template', 'ToggleTemplate')" :loading="buttons.ToggleTemplate.isLoading" text>Toggle</v-btn>
+          <v-col md="12">
+            <v-switch v-model="properties.allow_raw_sockets" @click="toggleProperty('allow_raw_sockets','ToggleRawSocket')" :loading="buttons.ToggleRawSocket.isLoading" :label="'Allow raw sockets (eg. PING): ' + displayBoolean(properties.allow_raw_sockets)" dense></v-switch>
           </v-col>
         </v-row>
         <v-row no-gutters>
-          <v-col md="4">Boot</v-col>
-          <v-col md="5">{{displayBoolean(properties.boot)}}</v-col>
-          <v-col md="3"><v-btn @click="toggleProperty('boot', 'ToggleBoot')" :loading="buttons.ToggleRawSocket.isLoading" text>Toggle</v-btn></v-col>
+          <v-col md="12"><v-text-field v-model="properties.ip4_addr" label="Network Address" placeholder="vnet0|your.ip.address.here">
+            <template v-slot:append-outer>
+              <v-btn @click="toggleProperty('allow_raw_sockets')" text>Update</v-btn>
+            </template>
+          </v-text-field></v-col>
         </v-row>
         <v-row no-gutters>
-          <v-col md="9">Notes<br/>
-            <textarea cols="60" rows="10"></textarea>
+          <v-col md="12">
+            <v-switch v-model="properties.template" @click="toggleProperty('template','ToggleTemplate')" :loading="buttons.ToggleTemplate.isLoading" :label="'Is Template: ' + displayBoolean(properties.template)" dense>
+            </v-switch>
           </v-col>
-          <v-col md="3"><v-btn text>Update</v-btn></v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col md="12">
+            <v-switch v-model="properties.template" @click="toggleProperty('boot','ToggleBoot')" :loading="buttons.ToggleBoot.isLoading" :label="'Boot: ' + displayBoolean(properties.boot)" dense></v-switch>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col md="9">
+            <v-textarea outlined label="Notes" v-model="properties.notes"></v-textarea>
+          </v-col>
+          <v-col md="3"><v-btn @click="setProperty('notes', properties.notes)" :loading="buttons.SetNotes.isLoading" text>Update</v-btn></v-col>
         </v-row>
       </v-col>
       <v-col md="5">
@@ -80,7 +79,13 @@ export default {
     return {
       properties: {},
       buttons: {
+        SetNotes: {
+          isLoading: false
+        },
         ToggleRawSocket: {
+          isLoading: false
+        },
+        ToggleState: {
           isLoading: false
         },
         ToggleTemplate: {
@@ -124,19 +129,22 @@ export default {
       if (value === null) {
         return ''
       }
-      return parseInt(value) === 0 ? 'NO': 'YES'
+      return value ? 'YES': 'NO'
     },
-    toggleStart: function() {
-      if (this.properties.state === 'down') {
-        axios.get(Config.service.BaseUrl + '/iocage/start/' + this.jailname)
-        .then((resp) => {
-          console.log(resp.data)
-          this.properties = resp.data
-        })
-        .catch((err) => {
-          console.error(err)
-        })
+    async toggleStart() {
+      let resp
+      try {
+        this.buttons.ToggleState.isLoading = true
+        if (this.properties.state) {
+          resp = await axios.get(Config.service.BaseUrl + '/iocage/stop/' + this.JailId)
+        } else {
+          resp = await axios.get(Config.service.BaseUrl + '/iocage/start/' + this.JailId)
+        }
+        console.log(resp.data)
+      } catch (err) {
+        console.error(err)
       }
+      this.buttons.ToggleState.isLoading = false
       return false
     },
     async setProperty(PropName, NewValue) {
@@ -153,19 +161,20 @@ export default {
       }
     },
     async toggleProperty(PropName, BtnName) {
+      console.log('BtnName: %s', BtnName)
       if (BtnName) {
         this.buttons[BtnName].isLoading = true
       }
       let NewValue;
       switch (PropName) {
         case 'allow_raw_sockets':
-          NewValue = parseInt(this.properties[PropName]) === 1 ? 0 : 1
+          NewValue = this.properties[PropName] ? 0 : 1
           break
         case 'template':
-          NewValue = this.properties[PropName] === '0' ? '1' : '0'
+          NewValue = this.properties[PropName] ? 0 : 1
           break
         case 'boot':
-          NewValue = parseInt(this.properties[PropName]) === 1 ? 0 : 1
+          NewValue = this.properties[PropName] ? 0 : 1
           break
       }
       await this.setProperty(PropName, NewValue)
