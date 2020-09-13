@@ -1,0 +1,16 @@
+{
+    "app": {
+        "name": "webmanager",
+        "buildpack": "nodejs",
+        "env": "development",
+        "git": "https://github.com/jhfoo/iocage-webmanager-server.git"
+    },
+    "host": {
+        "ip": ["192.168.50.103"]
+    },
+    "services": [{
+        "name": "api",
+        "tags": ["iwm"],
+        "port": 8543
+    }]
+}
