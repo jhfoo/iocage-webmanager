@@ -59,7 +59,7 @@ export default {
     },
     async getJails() {
       try {
-        let resp = await this.getWebClient().get(Config.service.BaseUrl + '/iocage/list/')
+        let resp = await this.getWebClient().get(Config.service.BaseUrl + '/api/list/')
         this.jails = resp.data
       } catch(err) {
         console.error(err)

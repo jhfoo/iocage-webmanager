@@ -31,7 +31,7 @@ server.use(restify.plugins.queryParser({
     mapParams: false
 }))
 
-router.add('/iocage', require('./router-iocage'));
+router.add('/api', require('./router-iocage'));
 // router.add('/ui', require('./plugins/ui'));
 router.applyRoutes(server)
 

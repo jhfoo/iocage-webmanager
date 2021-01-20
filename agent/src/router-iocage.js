@@ -10,13 +10,24 @@ const child_process = require('child_process'),
 
 const PROP_BOOLEAN = ['allow_raw_sockets', 'allow_tun', 'allow_vmm']
 
+function formattedOutput(req, res, data) {
+    if (req.query.fmt && req.query.fmt === 'json') {
+        res.send(data)
+        return
+    } 
+
+    // else
+    res.header('content-type', 'text/plain')
+    res.send(JSON.stringify(data, null, 2))
+}
+
 router.get('/ping', (req, res, next) => {
     res.send('pong')
     next();
 });
 
 router.get('/list/:template', (req, res, next) => {
-    logger.info('GET {iocage}/list');
+    logger.info('GET {api}/list');
     let ListParam = req.params.template === 'template' ? '-t' : '';
 
     child_process.exec('iocage list ' + ListParam, (err, stdout, stderr) => {
@@ -24,7 +35,7 @@ router.get('/list/:template', (req, res, next) => {
             res.send(err)
             next()
         } else {
-            logger.debug(stdout);
+            // logger.debug(stdout);
             let re = /\|\s+(\S+)\s+\|\s+(\S+)\s+\|\s+(\S+)\s+\|\s+(\S+)\s+\|\s+(\S+)\s+\|/g;
             let match;
             let count = 0;
@@ -39,19 +50,21 @@ router.get('/list/:template', (req, res, next) => {
                         ipv4: match[5]
                     };
                     ret.push(record)
-                    logger.debug('Match: %s, %s, %s, %s, %s', record.id, record.name, record.state, record.release, record.ip4)
+                    // logger.debug('Match: %s, %s, %s, %s, %s', record.id, record.name, record.state, record.release, record.ip4)
                 }
                 count++;
             }
-            res.send(ret)
+
+            formattedOutput(req, res, ret)
             next()
         }
     })
 })
 
 router.get('/property/:jailname/:property', (req, res, next) => {
-    logger.info('GET {iocage}/property');
-    child_process.exec('iocage get ' + req.params.property + ' ' + req.params.jailname, (err, stdout, stderr) => {
+    logger.info('GET {api}/property')
+    const PropertyName = !req.params.property || req.params.property === 'all' ? 'all' : req.params.property
+    child_process.exec(`iocage get ${PropertyName} ${req.params.jailname}`, (err, stdout, stderr) => {
         if (err) {
             res.send(err);
             logger.error(err.message);
@@ -59,8 +72,8 @@ router.get('/property/:jailname/:property', (req, res, next) => {
             next();
         } else {
             let ret;
-            if (req.params.property === 'all') {
-                logger.debug(stdout);
+            if (PropertyName === 'all') {
+                // logger.debug(stdout);
                 let LastKey = null
                 ret = stdout.split('\n').reduce((acc, line) => {
                     let re = /(\S+):(.*)/;
@@ -90,7 +103,8 @@ router.get('/property/:jailname/:property', (req, res, next) => {
                 let value = stdout.trim();
                 ret[req.params.property] = value.match(/^\d+$/) ? parseInt(value) : value;
             }
-            res.send(ret);
+
+            formattedOutput(req, res, ret)
             next();
         }
     });

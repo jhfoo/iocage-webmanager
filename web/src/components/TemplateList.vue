@@ -63,7 +63,7 @@ export default {
       })
     },
     getTemplates() {
-      this.getWebClient().get(Config.service.BaseUrl + '/iocage/list/template')
+      this.getWebClient().get(Config.service.BaseUrl + '/api/list/template')
       .then((resp) => {
         this.templates = resp.data
       })

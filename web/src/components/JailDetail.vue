@@ -136,9 +136,9 @@ export default {
       try {
         this.buttons.ToggleState.isLoading = true
         if (this.properties.state) {
-          resp = await axios.get(Config.service.BaseUrl + '/iocage/stop/' + this.JailId)
+          resp = await axios.get(Config.service.BaseUrl + '/api/stop/' + this.JailId)
         } else {
-          resp = await axios.get(Config.service.BaseUrl + '/iocage/start/' + this.JailId)
+          resp = await axios.get(Config.service.BaseUrl + '/api/start/' + this.JailId)
         }
         console.log(resp.data)
       } catch (err) {
@@ -149,7 +149,7 @@ export default {
     },
     async setProperty(PropName, NewValue) {
       try {
-        let resp = await axios.post(Config.service.BaseUrl + '/iocage/property/' + this.JailId + '/' + PropName, { 
+        let resp = await axios.post(Config.service.BaseUrl + '/api/property/' + this.JailId + '/' + PropName, { 
           value: NewValue
         })
         console.log(resp)
@@ -183,7 +183,7 @@ export default {
       }
     },
     getProperties: function() {
-      axios.get(Config.service.BaseUrl + '/iocage/property/' + this.JailId + '/all')
+      axios.get(Config.service.BaseUrl + '/api/property/' + this.JailId + '/all')
       .then((resp) => {
         console.log(resp.data)
         this.properties = resp.data
