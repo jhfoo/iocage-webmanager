@@ -6,7 +6,7 @@
       <v-spacer></v-spacer>
       <template v-slot:extension>
         <v-tabs v-model="SelectedTab" grow>
-          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tabs-slider color="primary"></v-tabs-slider>
           <v-tab v-for="item in tabs" :key="item">
             {{ item }}
           </v-tab>
@@ -38,10 +38,12 @@
           <v-list-item>
             <v-list-item-title>{{ 'Boot: ' + displayBoolean(properties.boot) }}</v-list-item-title>
             <v-list-item-action>
-              <v-switch v-model="properties.template" @click="toggleProperty('boot','ToggleBoot')" :loading="buttons.ToggleBoot.isLoading" dense></v-switch>
+              <v-switch v-model="properties.boot" @click="toggleProperty('boot','ToggleBoot')" :loading="buttons.ToggleBoot.isLoading" dense></v-switch>
             </v-list-item-action>
           </v-list-item>
         </v-list>
+
+        <v-divider></v-divider>
 
         <v-card-text>
           <v-text-field v-model="properties.ip4_addr" label="Network Address" placeholder="vnet0|your.ip.address.here" append-outer-icon="mdi-send" @click:append-outer="toggleProperty('allow_raw_sockets')">
@@ -180,13 +182,14 @@ export default {
       let NewValue;
       switch (PropName) {
         case 'allow_raw_sockets':
-          NewValue = this.properties[PropName] ? 0 : 1
+          console.log(this.properties[PropName])
+          NewValue = this.properties[PropName] ? 1 : 0
           break
         case 'template':
-          NewValue = this.properties[PropName] ? 0 : 1
+          NewValue = this.properties[PropName] ? 1 : 0
           break
         case 'boot':
-          NewValue = this.properties[PropName] ? 0 : 1
+          NewValue = this.properties[PropName] ? 1 : 0
           break
       }
       await this.setProperty(PropName, NewValue)
