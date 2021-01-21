@@ -4,18 +4,18 @@
       <v-row no-gutters>
         <v-col md="3">
         </v-col>
-        <v-col cols="12" md="9">
+        <v-col md="9">
           <v-row>
             <v-col cols="12">
               <v-breadcrumbs :items="breadcrumbs"></v-breadcrumbs>
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="12" md="8"><JailList v-on:SelectJailId="SelectedJailId = $event"/></v-col>
-            <v-col cols="12" md="4"><JailDetail :JailId="SelectedJailId"/></v-col>
+            <v-col md="6"><JailList v-on:SelectJailId="SelectedJailId = $event"/></v-col>
+            <v-col md="6"><TemplateList/></v-col>
           </v-row>
           <v-row>
-            <v-col md="12"></v-col>
+            <v-col md="12"><JailDetail :JailId="SelectedJailId"/></v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -24,11 +24,13 @@
 </template>
 <script>
 import JailList from '../components/JailList.vue'
+import TemplateList from '../components/TemplateList.vue'
 import JailDetail from '../components/JailDetail.vue'
 
 export default {
   components: {
     JailList,
+    TemplateList,
     JailDetail
   },
   data: () => {

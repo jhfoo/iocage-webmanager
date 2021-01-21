@@ -59,7 +59,7 @@ export default {
     },
     async getJails() {
       try {
-        let resp = await this.getWebClient().get(Config.service.BaseUrl + '/api/list/')
+        let resp = await this.getWebClient().get(Config.service.BaseUrl + '/list/')
         this.jails = resp.data
       } catch(err) {
         console.error(err)

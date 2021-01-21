@@ -1,54 +1,61 @@
 <template>
   <div v-if="JailId">
-    <v-toolbar dense flat>
-        <v-toolbar-title>Jail Properties ({{JailId}})</v-toolbar-title>
-        <v-spacer></v-spacer>
+    <v-toolbar color="cyan" dark flat>
+      <v-toolbar-title>Properties ({{JailId}})</v-toolbar-title>
 
-        <template v-if="$vuetify.breakpoint.smAndUp">
-            <v-btn icon>
-            <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-        </template>
+      <v-spacer></v-spacer>
+      <template v-slot:extension>
+        <v-tabs v-model="SelectedTab" grow>
+          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tab v-for="item in tabs" :key="item">
+            {{ item }}
+          </v-tab>
+        </v-tabs>
+      </template>
     </v-toolbar>
-    <v-row>
-      <v-col md="7">
-        <v-row no-gutters>
-          <v-col md="12">
-            <v-switch v-model="properties.state" @click="toggleStart('ToggleState')" :loading="buttons.ToggleState.isLoading" :label="'State: ' + displayBoolean(properties.state)" dense></v-switch>
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="12">
-            <v-switch v-model="properties.allow_raw_sockets" @click="toggleProperty('allow_raw_sockets','ToggleRawSocket')" :loading="buttons.ToggleRawSocket.isLoading" :label="'Allow raw sockets (eg. PING): ' + displayBoolean(properties.allow_raw_sockets)" dense></v-switch>
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="12"><v-text-field v-model="properties.ip4_addr" label="Network Address" placeholder="vnet0|your.ip.address.here">
-            <template v-slot:append-outer>
-              <v-btn @click="toggleProperty('allow_raw_sockets')" text>Update</v-btn>
-            </template>
-          </v-text-field></v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="12">
-            <v-switch v-model="properties.template" @click="toggleProperty('template','ToggleTemplate')" :loading="buttons.ToggleTemplate.isLoading" :label="'Is Template: ' + displayBoolean(properties.template)" dense>
-            </v-switch>
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <v-col md="12">
-            <v-switch v-model="properties.template" @click="toggleProperty('boot','ToggleBoot')" :loading="buttons.ToggleBoot.isLoading" :label="'Boot: ' + displayBoolean(properties.boot)" dense></v-switch>
-          </v-col>
-        </v-row>
+    <v-tabs-items v-model="SelectedTab">
+      <v-tab-item>
+        <v-list>
+          <v-list-item>
+            <v-list-item-title>{{ 'State: ' + displayBoolean(properties.state) }}</v-list-item-title>
+            <v-list-item-action>
+              <v-switch v-model="properties.state" @click="toggleStart('ToggleState')" :loading="buttons.ToggleState.isLoading" dense></v-switch>
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>{{ 'Allow raw sockets: ' + displayBoolean(properties.allow_raw_sockets) }}</v-list-item-title>
+            <v-list-item-action>
+              <v-switch v-model="properties.allow_raw_sockets" @click="toggleProperty('allow_raw_sockets','ToggleRawSocket')" :loading="buttons.ToggleRawSocket.isLoading" dense></v-switch>
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>{{ 'Is Template: ' + displayBoolean(properties.template) }}</v-list-item-title>
+            <v-list-item-action>
+              <v-switch v-model="properties.template" @click="toggleProperty('template','ToggleTemplate')" :loading="buttons.ToggleTemplate.isLoading" dense>
+              </v-switch>
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-title>{{ 'Boot: ' + displayBoolean(properties.boot) }}</v-list-item-title>
+            <v-list-item-action>
+              <v-switch v-model="properties.template" @click="toggleProperty('boot','ToggleBoot')" :loading="buttons.ToggleBoot.isLoading" dense></v-switch>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list>
+
+        <v-card-text>
+          <v-text-field v-model="properties.ip4_addr" label="Network Address" placeholder="vnet0|your.ip.address.here" append-outer-icon="mdi-send" @click:append-outer="toggleProperty('allow_raw_sockets')">
+          </v-text-field>
+        </v-card-text>
+
         <v-row no-gutters>
           <v-col md="9">
             <v-textarea outlined label="Notes" v-model="properties.notes"></v-textarea>
           </v-col>
           <v-col md="3"><v-btn @click="setProperty('notes', properties.notes)" :loading="buttons.SetNotes.isLoading" text>Update</v-btn></v-col>
         </v-row>
-      </v-col>
-      <v-col md="5">
-        Raw Properties
+      </v-tab-item>
+      <v-tab-item>
         <v-simple-table fixed-header height="300">
             <template v-slot:default>
                 <thead>
@@ -65,8 +72,11 @@
                 </tbody>
             </template>
         </v-simple-table>
-      </v-col>
-    </v-row>
+      </v-tab-item>
+    </v-tabs-items>
+    <!--
+        <template v-if="$vuetify.breakpoint.smAndUp">
+    -->
   </div>
 </template>
 <script>
@@ -77,6 +87,8 @@ export default {
   props: ['JailId'], 
   data: () => {
     return {
+      SelectedTab: 0,
+      tabs: ['Basic', 'Advanced'],
       properties: {},
       buttons: {
         SetNotes: {
@@ -136,9 +148,9 @@ export default {
       try {
         this.buttons.ToggleState.isLoading = true
         if (this.properties.state) {
-          resp = await axios.get(Config.service.BaseUrl + '/api/stop/' + this.JailId)
+          resp = await axios.get(Config.service.BaseUrl + '/stop/' + this.JailId)
         } else {
-          resp = await axios.get(Config.service.BaseUrl + '/api/start/' + this.JailId)
+          resp = await axios.get(Config.service.BaseUrl + '/start/' + this.JailId)
         }
         console.log(resp.data)
       } catch (err) {
@@ -149,7 +161,7 @@ export default {
     },
     async setProperty(PropName, NewValue) {
       try {
-        let resp = await axios.post(Config.service.BaseUrl + '/api/property/' + this.JailId + '/' + PropName, { 
+        let resp = await axios.post(Config.service.BaseUrl + '/property/' + this.JailId + '/' + PropName, { 
           value: NewValue
         })
         console.log(resp)
@@ -183,7 +195,7 @@ export default {
       }
     },
     getProperties: function() {
-      axios.get(Config.service.BaseUrl + '/api/property/' + this.JailId + '/all')
+      axios.get(Config.service.BaseUrl + '/property/' + this.JailId + '/all')
       .then((resp) => {
         console.log(resp.data)
         this.properties = resp.data
