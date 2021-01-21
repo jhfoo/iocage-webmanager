@@ -6,6 +6,11 @@
         </v-col>
         <v-col md="9">
           <v-row>
+            <v-col cols="12">
+              <v-breadcrumbs :items="breadcrumbs"></v-breadcrumbs>
+            </v-col>
+          </v-row>
+          <v-row>
             <v-col md="6"><JailList v-on:SelectJailId="SelectedJailId = $event"/></v-col>
             <v-col md="6"><TemplateList/></v-col>
           </v-row>
@@ -30,7 +35,17 @@ export default {
   },
   data: () => {
     return {
-      SelectedJailId: null
+      SelectedJailId: null,
+      breadcrumbs: [
+        {
+          text: 'Home',
+          to: '/'
+        },
+        {
+          text: 'Jails',
+          to: '/jails'
+        },
+      ]
     }
   },
   // watch: {
